@@ -14,6 +14,7 @@ keywords = {
     "has_trample": "trample",
 
     "has_combat": "combat",
+    "has_opponent": "opponent",
     "has_counter_target": "counter target",
     "has_damage": "damage",
     "has_defender": "defender",
@@ -29,8 +30,21 @@ keywords = {
     "has_menace": "menace",
     "has_sacrifice": "sacrifice",
     "has_scry": "scry",
+    "has_surveil": "surveil",
+    "has_exlpore": "explore",
     "has_token": "token",
-    "has_vigilance": "vigilance"
+    "has_vigilance": "vigilance",
+    "has_treasure": "treasure",
+    "has_clue": "clue",
+    "has_food": "food",
+    "has_map": "map",
+    "has_plusOnePlusOne": "+1/+1",
+    "has_minusOneMinusOne":"-1/-1",
+    "has_mill":"mill",
+    "has_emblem": "emblem",
+    "has_proliferate":"proliferate",
+    "has_nonCombat":"noncombat",
+    "has_fight": "fight"
 }
 
 def rarityToInt(rarity:str):
@@ -40,7 +54,7 @@ def rarityToInt(rarity:str):
     if rarity == "mythic": return 3
 
 
-with open("default-cards.json", "r") as f:
+with open("cards.json", "r") as f:
     cards = json.load(f)
 
 with open("mtg_features.csv", "w", newline="") as output:
