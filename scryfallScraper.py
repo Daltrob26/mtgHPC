@@ -68,6 +68,10 @@ with open("mtg_features.csv", "w", newline="") as output:
     ])
 
     for card in cards: 
+        cardSet = card.get("set")
+        #Skip illegal and format breaking "Un" cards
+        if cardSet == "ugl" or cardSet == "unh" or cardSet == "ust" or cardSet == "und" or cardSet == "unf":
+            continue
         name = card.get("name")
 
         #handle cards with non int p/t mainly *
