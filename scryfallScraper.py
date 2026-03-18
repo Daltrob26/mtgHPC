@@ -12,7 +12,6 @@ keywords = {
     "has_lifelink": "lifelink",
     "has_reach": "reach",
     "has_trample": "trample",
-
     "has_combat": "combat",
     "has_opponent": "opponent",
     "has_counter_target": "counter target",
