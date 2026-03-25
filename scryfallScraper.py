@@ -1,6 +1,16 @@
 import json
 import csv
 
+
+
+# max data manually found to scale numerical attributes
+#dawsire, sunstar dreadnaught
+MAX_POWER =20
+#walls of ba sing se
+MAX_TOUGHNESS = 30
+#draco
+MAX_CMC =16
+
 #to add any other keywords or phrases we want to seach for
 #just add it here and it'll go through it
 keywords = {
@@ -78,10 +88,13 @@ with open("mtg_features.csv", "w", newline="") as output:
 
             #handle cards with non int p/t mainly *
             power = int(card["power"]) if card.get("power","").isdigit() else 0
+            power = power / MAX_POWER
             toughness = int(card["toughness"]) if card.get("toughness","").isdigit() else 0
+            toughness = toughness / MAX_TOUGHNESS
 
             cmc = card.get("cmc", 0)
-            rarity = rarityToInt(card.get("rarity"))
+            cmc = cmc / MAX_CMC
+            rarity = rarityToInt(card.get("rarity")) / 3
 
     # color identity 
             colors = card.get("colors", [])
