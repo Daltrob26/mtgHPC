@@ -10,6 +10,8 @@ MAX_POWER =20
 MAX_TOUGHNESS = 30
 #draco
 MAX_CMC =16
+#change to duplicate data LOOP_Count times to making scaling studies
+LOOP_Count = 1
 
 #to add any other keywords or phrases we want to seach for
 #just add it here and it'll go through it
@@ -78,7 +80,7 @@ with open("mtg_features.csv", "w", newline="") as output:
         "is_artifact","is_land","is_planeswalker",
         *keywords.keys()
     ])
-    for i in range(1):
+    for i in range(LOOP_Count):
         for card in cards: 
             cardSet = card.get("set")
             #Skip illegal and format breaking "Un" cards
@@ -126,3 +128,5 @@ with open("mtg_features.csv", "w", newline="") as output:
                 for word in keywords.values()
             ]
             writer.writerow([name, power, toughness, cmc, rarity,is_white, is_blue, is_black, is_red, is_green,is_creature, is_enchantment, is_instant, is_sorcery,is_artifact, is_land, is_planeswalker,*keyword_flags])
+
+print("Wrote card data to mtg_features.csv")
