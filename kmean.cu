@@ -10,17 +10,21 @@
 #include <chrono>
 #include <cstring>
 
+// struct to hold card data
+//  namely to seperate the name from the numerical data
 struct Card {
     std::string name;
     std::vector<double> features;
 };
 
+// parses one row of the datasheet,
 std::vector<std::string> parseCSVRow(const std::string &line) {
     std::vector<std::string> result;
     std::string cur;
     bool inQuotes = false;
 
     for (char c : line) {
+        // handle cards with , in the name
         if (c == '"') {
             inQuotes = !inQuotes;
         } else if (c == ',' && !inQuotes) {
@@ -42,6 +46,7 @@ std::vector<Card> readCSV(const std::string &filename) {
     bool firstLine = true;
 
     while (std::getline(file, line)) {
+        // skip the header line
         if (firstLine) {
             firstLine = false;
             continue;
@@ -98,12 +103,13 @@ void assignClusters(
     int bestCluster = 0;
 
     for (int c = 0; c < k; ++c) {
+        // Compute distance
         double sum = 0.0;
-
         for (int d = 0; d < dim; ++d) {
             double diff = data[i * dim + d] - centroids[c * dim + d];
             sum += diff * diff;
         }
+        // Technically don't need square root since just do direct comparrisions, so no reason to waste time computing it
 
         if (sum < bestDist) {
             bestDist = sum;
@@ -118,7 +124,7 @@ std::vector<int> kMeansCUDA(const std::vector<Card>& data, int k, int max_iters)
     int n = data.size();
     int dim = data[0].features.size();
 
-    // ---- Flatten data ----
+    // Flatten data to work better with cuda
     std::vector<double> data_flat(n * dim);
     for (int i = 0; i < n; ++i) {
         std::memcpy(
@@ -130,14 +136,17 @@ std::vector<int> kMeansCUDA(const std::vector<Card>& data, int k, int max_iters)
 
     std::vector<int> labels(n, 0);
 
-    // ---- Initialize centroids ----
-    std::vector<double> centroids(k * dim);
-
+    // seed the random starting cards to be the centroids
+    // 08051993 because thats mtg's birthday
     std::mt19937 rng(851993);
+
+    std::vector<double> centroids(k * dim);
     std::uniform_int_distribution<int> dist(0, n - 1);
 
     for (int i = 0; i < k; ++i) {
         int idx = dist(rng);
+        // print the names of cards used for centroids
+        // std::cout << data[index].name << "\n";
         std::memcpy(
             centroids.data() + i * dim,
             data[idx].features.data(),
@@ -145,7 +154,7 @@ std::vector<int> kMeansCUDA(const std::vector<Card>& data, int k, int max_iters)
         );
     }
 
-    // ---- Device memory ----
+    // Device memory
     double *d_data = nullptr;
     double *d_centroids = nullptr;
     int *d_labels = nullptr;
@@ -156,15 +165,13 @@ std::vector<int> kMeansCUDA(const std::vector<Card>& data, int k, int max_iters)
 
     cudaMemcpy(d_data, data_flat.data(), n * dim * sizeof(double), cudaMemcpyHostToDevice);
 
-    int blockSize = 256;
-    int gridSize = (n + blockSize - 1) / blockSize;
+    dim3 DimBlock(256);
+    dim3 DimGrid((n + DimBlock.x - 1) / DimBlock.x);
 
-    // ---- Main loop ----
+    // Main loop
     for (int iter = 0; iter < max_iters; ++iter) {
-
         cudaMemcpy(d_centroids, centroids.data(), k * dim * sizeof(double), cudaMemcpyHostToDevice);
-
-        assignClusters<<<gridSize, blockSize>>>(
+        assignClusters<<<DimGrid, DimBlock>>>(
             d_data,
             d_centroids,
             d_labels,
@@ -175,7 +182,7 @@ std::vector<int> kMeansCUDA(const std::vector<Card>& data, int k, int max_iters)
 
         cudaMemcpy(labels.data(), d_labels, n * sizeof(int), cudaMemcpyDeviceToHost);
 
-        // ---- Recompute centroids (CPU) ----
+        // Recompute centroids
         std::vector<double> newCentroids(k * dim, 0.0);
         std::vector<int> counts(k, 0);
 
@@ -211,11 +218,8 @@ int main() {
 
     int k = 5;
     int iter = 100;
-
     auto start = std::chrono::high_resolution_clock::now();
-
     auto labels = kMeansCUDA(data, k, iter);
-
     auto end = std::chrono::high_resolution_clock::now();
 
     std::chrono::duration<double> elapsed = end - start;

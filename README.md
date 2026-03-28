@@ -12,3 +12,8 @@ The format of the exported CSV is as follows
 CardName, Power, Toughness, ... etc. 
 
 When doing K means clustering ensure you skip over the first column of data. 
+
+
+## CUDA
+
+Run ```nvcc kmean.cu -o out && sbatch batch.sh``` to run the cuda implementation on a job.
