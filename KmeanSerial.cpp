@@ -116,8 +116,8 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k, int max_interation
   for (int iterations = 0; iterations < max_interations; iterations++){
     //assign cards to centroids
     for (int cardNum = 0; cardNum < n; ++cardNum){
-            double shortestDistance = 1e18;
-            int bestCluster = 0;
+        double shortestDistance = 1e18;
+        int bestCluster = 0;
         for (int cluster = 0; cluster < k; ++cluster){
             double distance = computeDistance(data[cardNum].features, centroids[cluster]);
             if (distance < shortestDistance){
