@@ -64,12 +64,20 @@ std::vector<Card> readCSV(const std::string &filename) {
 }
 
 //write out the data, final col is the cluster the card belongs to
-void writeCSVWithCardData(const std::string &filename, const std::vector<Card> &data, const std::vector<int> &labels) {
+void writeCSVWithCardData(const std::string &filename, const std::vector<Card> &data, const std::vector<int> &labels, const std::vector<std::string> &header) 
+{
     std::ofstream out(filename);
     if (!out.is_open()) {
         std::cerr << "Failed to open " << filename << " for writing.\n";
         return;
     }
+
+    //header
+    for (size_t i = 0; i < header.size(); ++i) {
+        out << '"' << header[i] << '"';
+        out << ",";
+    }
+    out << "\"cluster\"\n";
 
     // Write rows
     for (size_t i = 0; i < data.size(); ++i) {
@@ -157,18 +165,25 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k, int max_interation
 }
 
 int main() {
+    std::ifstream infile("mtg_features.csv");
+    std::string headerLine;
+    std::getline(infile, headerLine);
+    if (!headerLine.empty() && (headerLine.back() == '\n' || headerLine.back() == '\r')) {
+        headerLine.pop_back();
+    }
+    std::vector<std::string> header = parseCSVRow(headerLine);
+
     auto data = readCSV("mtg_features.csv");
 
     int k = 5;
     int iter = 100;
     auto start = std::chrono::high_resolution_clock::now();
     auto labels = kMeans(data, k, iter);
-
     auto end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = end - start;
     std::cout << "K-means completed in " << elapsed.count() << " seconds.\n";
 
-    writeCSVWithCardData("clusteredCards.csv", data, labels);
+    writeCSVWithCardData("clusteredCards.csv", data, labels, header);
 
     return 0;
 }
