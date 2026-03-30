@@ -1,5 +1,5 @@
 *.json
 *.csv
-pyproject.toml
 /assets/*
 /assets
+poetry.lock
