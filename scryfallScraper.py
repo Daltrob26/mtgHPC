@@ -14,7 +14,7 @@ MAX_CMC =16
 LOOP_Count = 1
 
 #choose to include color data or not
-COLOR_DATA = False
+COLOR_DATA = True
 
 #to add any other keywords or phrases we want to seach for
 #just add it here and it'll go through it
