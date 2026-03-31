@@ -11,7 +11,7 @@ from dash import Dash, dcc, html, Input, Output
 CACHE_DIR = "assets"  # Dash serves files from /assets automatically
 os.makedirs(CACHE_DIR, exist_ok=True)
 
-# in-memory cachea
+# in-memory cache
 image_cache = {}
 
 def sanitize_filename(name):
@@ -64,7 +64,7 @@ def get_cached_or_fetch_image(name):
     return ""
 
 
-df = pd.read_csv("clusteredCards.csv", quotechar='"')
+df = pd.read_csv("SerialCards.csv", quotechar='"')
 
 # Ensure last column is cluster
 cols = list(df.columns)

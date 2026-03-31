@@ -2,10 +2,9 @@
 
 scryfallScrapper.py searches through the scryfall bulk data found at https://scryfall.com/docs/api/bulk-data and extracts data on each card into a CSV.
 
-scryfallScrapper.py expects a file named mtg_features.csv to exist in the same directory.
-KmeanSerial.cpp expects a file named clusteredCards.csv to exist in the same directory. 
-
 Download the oracle cards bulk download and rename it to cards.json, place it in the same directory as scryfallScraper.py then run the program. 
+
+BuildandRun.sh handles compilation, runtime and verification of all versions of the program. It treats the serial output as objective truth and compares the other progams to it.
 
 The format of the exported CSV is as follows
 
@@ -15,8 +14,10 @@ When doing K means clustering ensure you skip over the first column of data.
 
 ## Viz.py 
 
-viz.py has a lot of dependencies, they're listed inside the pyproject.toml for the poetry enviornment you have to use.
+viz.py has a lot of dependencies, they're listed inside the pyproject.toml for the poetry enviornment you can use.
 
-Running viz.py will launch a local webpage you and interact with the 2D visualisation of the clusted card data. 
+Running viz.py will launch a local webpage you and interact with the 2D visualisation of the clusted card data.
+
+In particular it uses the file SerialCards.csv, if you want to look at the output from any other version of the program, just rename the files.
 
 The visualization does pull data from scryfall to show the card that is currently being hovered over. We tried to be as nice to the api as possible so we cache the data in both memory while the program is running and store the data under assets/ . 
