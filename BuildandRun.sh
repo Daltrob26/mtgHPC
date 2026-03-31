@@ -1,8 +1,19 @@
 #!/bin/bash
+#SBATCH --time=00:10:00
+#SBATCH --nodes=1
+#SBATCH --ntasks=8
+#SBATCH -o slurmjob-%j.out-%N 
+#SBATCH -e slurmjob-%j.err-%N 
+#SBATCH --account=kingspeak-gpu 
+#SBATCH --partition=kingspeak-gpu
+
+cd /uufs/chpc.utah.edu/common/home/u1393616/mtg/
+
+module load gcc
 
 set -e
 
-# Check for force flag to force compilation
+# Check for flag to force compilation
 FORCE_COMPILE=false
 if [ "$1" == "-f" ]; then
     FORCE_COMPILE=true
@@ -30,7 +41,7 @@ fi
 echo "Checking Serial executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "Serial" ]; then
     echo "Compiling serial version..."
-    g++-15 KMeansSerial.cpp -o Serial
+    g++ KMeansSerial.cpp -o Serial
 else
     echo "Serial already compiled"
 fi
@@ -39,7 +50,7 @@ fi
 echo "Checking OpenMP executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "OpenMP" ]; then
     echo "Compiling OpenMP version..."
-    g++-15 -fopenmp KMeansOpenMP.cpp -o OpenMP
+    g++ -fopenmp KMeansOpenMP.cpp -o OpenMP
 else
     echo "OpenMP already compiled"
 fi
