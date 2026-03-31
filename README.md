@@ -5,6 +5,11 @@ scryfallScrapper.py searches through the scryfall bulk data found at https://scr
 Download the oracle cards bulk download and rename it to cards.json, place it in the same directory as scryfallScraper.py then run the program. 
 
 BuildandRun.sh handles compilation, runtime and verification of all versions of the program. It treats the serial output as objective truth and compares the other progams to it.
+-f to force recompilation of all programs
+
+scryfallScraper.py has a global variable at the top to adjust the number of times to duplicate the data.
+
+KMeansImplementations have a global variable to change the ammount of times they are ran to compute an average runtime. 
 
 The format of the exported CSV is as follows
 

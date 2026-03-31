@@ -10,6 +10,7 @@ MAX_POWER =20
 MAX_TOUGHNESS = 30
 #draco
 MAX_CMC =16
+
 #change to duplicate data LOOP_Count times to making scaling studies
 LOOP_Count = 1
 

@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+int NUM_RUNS = 10;
+
 // struct to hold card data
 struct Card {
   std::string name;
@@ -172,29 +174,38 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k,
 }
 
 int main() {
-  std::ifstream infile("mtg_features.csv");
-  std::string headerLine;
-  std::getline(infile, headerLine);
+    std::ifstream infile("mtg_features.csv");
+    std::string headerLine;
+    std::getline(infile, headerLine);
 
-  if (!headerLine.empty() &&
-      (headerLine.back() == '\n' || headerLine.back() == '\r')) {
-    headerLine.pop_back();
-  }
+    if (!headerLine.empty() &&
+        (headerLine.back() == '\n' || headerLine.back() == '\r')) {
+        headerLine.pop_back();
+    }
 
-  std::vector<std::string> header = parseCSVRow(headerLine);
-  auto data = readCSV("mtg_features.csv");
+    std::vector<std::string> header = parseCSVRow(headerLine);
+    auto data = readCSV("mtg_features.csv");
 
-  int k = 5;
-  int iter = 100;
+    int k = 5;
+    int iter = 100;
 
-  auto start = std::chrono::high_resolution_clock::now();
-  auto labels = kMeans(data, k, iter);
-  auto end = std::chrono::high_resolution_clock::now();
+    double totalTime = 0.0;
 
-  std::chrono::duration<double> elapsed = end - start;
-  std::cout << "K-means completed in " << elapsed.count() << " seconds.\n";
+    for (int run = 0; run < NUM_RUNS; ++run) {
+        auto start = std::chrono::high_resolution_clock::now();
+        auto labels = kMeans(data, k, iter);
+        auto end = std::chrono::high_resolution_clock::now();
 
-  writeCSVWithCardData("clusteredCardsOpenMP.csv", data, labels, header);
+        std::chrono::duration<double> elapsed = end - start;
+        totalTime += elapsed.count();
+        std::cout << "Run " << run + 1 << " completed in " << elapsed.count() << " seconds.\n";
+    }
 
-  return 0;
+    double averageTime = totalTime / NUM_RUNS;
+    std::cout << "Average time over " << NUM_RUNS << " runs: " << averageTime << " seconds.\n";
+
+    auto labels = kMeans(data, k, iter);
+    writeCSVWithCardData("clusteredCardsOpenMP.csv", data, labels, header);
+
+    return 0;
 }

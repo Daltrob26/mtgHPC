@@ -7,8 +7,6 @@
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-cd {YOUR FILE PATH}
-
 module load gcc
 
 set -e
