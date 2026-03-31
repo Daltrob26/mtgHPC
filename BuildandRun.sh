@@ -7,7 +7,7 @@
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-cd /uufs/chpc.utah.edu/common/home/u1393616/mtg/
+cd {YOUR FILE PATH}
 
 module load gcc
 
