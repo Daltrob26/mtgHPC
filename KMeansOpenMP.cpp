@@ -194,7 +194,7 @@ int main() {
   std::chrono::duration<double> elapsed = end - start;
   std::cout << "K-means completed in " << elapsed.count() << " seconds.\n";
 
-  writeCSVWithCardData("clusteredCards.csv", data, labels, header);
+  writeCSVWithCardData("clusteredCardsOpenMP.csv", data, labels, header);
 
   return 0;
 }

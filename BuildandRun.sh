@@ -64,12 +64,12 @@ echo "Running OpenMP version..."
 
 # Compare outputs
 echo "Comparing outputs..."
-if cmp -s SerialCards.csv clusteredCards.csv; then
+if cmp -s SerialCards.csv clusteredCardsOpenMP.csv; then
     echo "Files are identical"
 else
     echo "Files are DIFFERENT"
     echo "Showing differences (first 20 lines):"
-    diff SerialCards.csv clusteredCards.csv | head -n 20
+    diff SerialCards.csv clusteredCardsOpenMP.csv | head -n 20
 fi
 
 echo "Done."

@@ -4,3 +4,4 @@
 /assets
 poetry.lock
 .DS_Store
+BuildandRunMac.sh
