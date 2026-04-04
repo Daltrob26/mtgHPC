@@ -1,6 +1,6 @@
 # MTG K Means Clustering
 
-![](/images/Viz.png)
+![](/images/viz.png)
 
 scryfallScrapper.py searches through the scryfall bulk data found at https://scryfall.com/docs/api/bulk-data and extracts data on each card into a CSV.
 
@@ -52,7 +52,7 @@ The visualization does pull data from scryfall to show the card that is currentl
 | 5x    | 8.5891        |
 | 10x   | 17.6898       |
 
-![](/images/SerialVSOpenMP.png)
+![](/images/SerialVsOpenMP.png)
 
 For the parallel memory implementation the most important step was dividing each cards distance computations across the processors. This was trivial in OpenMP. Recomputing the centroids location was a bit trickier. We gave each thread a local array to compute then put them back together in a critical section. While not the "most optimal" approach, this is sufficient for runtime. 
 
