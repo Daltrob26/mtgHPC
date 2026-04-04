@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-int NUM_RUNS = 10;
+int NUM_RUNS = 1;
 
 // struct to hold card data
 struct Card {
@@ -146,7 +146,7 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k,
         }
       }
 
-      // slows things down a bit, but ensures we dont step over each other
+      // slows things down a bit, but ensures we dont step over each other, and since we only have a few K's not really important to distribute
 #pragma omp critical
       {
         for (int c = 0; c < k; ++c) {
@@ -174,38 +174,40 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k,
 }
 
 int main() {
-    std::ifstream infile("mtg_features.csv");
-    std::string headerLine;
-    std::getline(infile, headerLine);
+  std::ifstream infile("mtg_features.csv");
+  std::string headerLine;
+  std::getline(infile, headerLine);
 
-    if (!headerLine.empty() &&
-        (headerLine.back() == '\n' || headerLine.back() == '\r')) {
-        headerLine.pop_back();
-    }
+  if (!headerLine.empty() &&
+      (headerLine.back() == '\n' || headerLine.back() == '\r')) {
+    headerLine.pop_back();
+  }
 
-    std::vector<std::string> header = parseCSVRow(headerLine);
-    auto data = readCSV("mtg_features.csv");
+  std::vector<std::string> header = parseCSVRow(headerLine);
+  auto data = readCSV("mtg_features.csv");
 
-    int k = 5;
-    int iter = 100;
+  int k = 5;
+  int iter = 100;
 
-    double totalTime = 0.0;
+  double totalTime = 0.0;
 
-    for (int run = 0; run < NUM_RUNS; ++run) {
-        auto start = std::chrono::high_resolution_clock::now();
-        auto labels = kMeans(data, k, iter);
-        auto end = std::chrono::high_resolution_clock::now();
-
-        std::chrono::duration<double> elapsed = end - start;
-        totalTime += elapsed.count();
-        std::cout << "Run " << run + 1 << " completed in " << elapsed.count() << " seconds.\n";
-    }
-
-    double averageTime = totalTime / NUM_RUNS;
-    std::cout << "Average time over " << NUM_RUNS << " runs: " << averageTime << " seconds.\n";
-
+  for (int run = 0; run < NUM_RUNS; ++run) {
+    auto start = std::chrono::high_resolution_clock::now();
     auto labels = kMeans(data, k, iter);
-    writeCSVWithCardData("clusteredCardsOpenMP.csv", data, labels, header);
+    auto end = std::chrono::high_resolution_clock::now();
 
-    return 0;
+    std::chrono::duration<double> elapsed = end - start;
+    totalTime += elapsed.count();
+    std::cout << "Run " << run + 1 << " completed in " << elapsed.count()
+              << " seconds.\n";
+  }
+
+  double averageTime = totalTime / NUM_RUNS;
+  std::cout << "Average time over " << NUM_RUNS << " runs: " << averageTime
+            << " seconds.\n";
+
+  auto labels = kMeans(data, k, iter);
+  writeCSVWithCardData("clusteredCardsOpenMP.csv", data, labels, header);
+
+  return 0;
 }
