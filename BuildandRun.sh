@@ -28,7 +28,7 @@ fi
 
 # Check for mtg_features.csv
 echo "Checking for mtg_features.csv..."
-if [ ! -f "mtg_features.csv" ]; then
+if [ ! -f "mtg_features.csv" ] || [ "$FORCE_COMPILE" = true ]; then
     echo "mtg_features.csv not found. Generating..."
     python3 scryfallScraper.py
 else
