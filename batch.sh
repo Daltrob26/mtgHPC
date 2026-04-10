@@ -11,4 +11,5 @@
 cd ~/mtgHPC
 #Run the program with our input
 nvcc kmean.cu -o out
+# nvcc kmeanChatGPT.cu -o out
 ./out
