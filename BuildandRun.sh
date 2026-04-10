@@ -1,13 +1,15 @@
 #!/bin/bash
 #SBATCH --time=01:00:00
 #SBATCH --nodes=1
+#SBATCH --gres=gpu:1
 #SBATCH --ntasks=8
 #SBATCH -o slurmjob-%j.out-%N 
 #SBATCH -e slurmjob-%j.err-%N 
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-module load gcc
+cd ~/mtgHPC
+module load gcc cuda
 
 set -e
 
@@ -53,21 +55,37 @@ else
     echo "OpenMP already compiled"
 fi
 
+# Compile Cuda version
+echo "Checking Cuda executable..."
+if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
+    echo "Compiling Cuda version..."
+    nvcc kmean.cu -o Cuda
+else
+    echo "Cuda already compiled"
+fi
+
+compare_outputs () {
+
+    echo "Comparing outputs for $1..."
+    if cmp -s SerialCards.csv clusteredCardsOpenMP.csv; then
+        echo "Files are identical"
+    else
+        echo "Files are DIFFERENT"
+        echo "Showing differences (first 20 lines):"
+        diff SerialCards.csv clusteredCardsOpenMP.csv | head -n 20
+    fi
+}
+
 # Always run KMeans programs
-echo "Running serial version..."
+echo -e "\nRunning serial version..."
 ./Serial
 
-echo "Running OpenMP version..."
+echo -e "\nRunning OpenMP version..."
 ./OpenMP
+compare_outputs "OpenMP"
 
-# Compare outputs
-echo "Comparing outputs..."
-if cmp -s SerialCards.csv clusteredCardsOpenMP.csv; then
-    echo "Files are identical"
-else
-    echo "Files are DIFFERENT"
-    echo "Showing differences (first 20 lines):"
-    diff SerialCards.csv clusteredCardsOpenMP.csv | head -n 20
-fi
+echo -e "\nRunning Cuda version..."
+./Cuda
+compare_outputs "Cuda"
 
 echo "Done."

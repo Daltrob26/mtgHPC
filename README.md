@@ -20,12 +20,6 @@ scryfallScraper.py has a global variable at the top to adjust the number of time
 
 KMeans Implementations have a global variable to change the ammount of times they are ran to compute an average runtime. 
 
-## Run cuda
-
-```bash
-module load gcc cuda
-sbatch batch.sh
-```
 
 ## Viz.py 
 

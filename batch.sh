@@ -10,6 +10,6 @@
 #### on the machine you are running on (you can use the 'myallocation' command)
 cd ~/mtgHPC
 #Run the program with our input
-nvcc kmean.cu -o out
-# nvcc kmeanChatGPT.cu -o out
-./out
+# nvcc kmean.cu -o cuda
+nvcc kmeanChatGPT.cu -o cuda
+./cuda
