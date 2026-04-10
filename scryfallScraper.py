@@ -10,8 +10,12 @@ MAX_POWER =20
 MAX_TOUGHNESS = 30
 #draco
 MAX_CMC =16
+
 #change to duplicate data LOOP_Count times to making scaling studies
 LOOP_Count = 1
+
+#choose to include color data or not
+COLOR_DATA = True
 
 #to add any other keywords or phrases we want to seach for
 #just add it here and it'll go through it
@@ -73,13 +77,23 @@ with open("cards.json", "r") as f:
 with open("mtg_features.csv", "w", newline="") as output:
     writer = csv.writer(output)
 
-    writer.writerow([
-        "name","power","toughness","cmc","rarity",
-        "is_white","is_blue","is_black","is_red","is_green",
-        "is_creature","is_enchantment","is_instant","is_sorcery",
-        "is_artifact","is_land","is_planeswalker",
-        *keywords.keys()
-    ])
+
+    if COLOR_DATA:
+        writer.writerow([
+            "name","power","toughness","cmc","rarity",
+            "is_white","is_blue","is_black","is_red","is_green",
+            "is_creature","is_enchantment","is_instant","is_sorcery",
+            "is_artifact","is_land","is_planeswalker",
+            *keywords.keys()
+        ])
+    else:
+        writer.writerow([
+            "name","power","toughness","cmc","rarity",
+            "is_creature","is_enchantment","is_instant","is_sorcery",
+            "is_artifact","is_land","is_planeswalker",
+            *keywords.keys()
+        ])
+
     for i in range(LOOP_Count):
         for card in cards: 
             cardSet = card.get("set")
@@ -99,13 +113,14 @@ with open("mtg_features.csv", "w", newline="") as output:
             rarity = rarityToInt(card.get("rarity")) / 3
 
     # color identity 
-            colors = card.get("colors", [])
+            if COLOR_DATA:
+                colors = card.get("colors", [])
 
-            is_white = 1 if "W" in colors else 0
-            is_blue  = 1 if "U" in colors else 0
-            is_black = 1 if "B" in colors else 0
-            is_red   = 1 if "R" in colors else 0
-            is_green = 1 if "G" in colors else 0
+                is_white = 1 if "W" in colors else 0
+                is_blue  = 1 if "U" in colors else 0
+                is_black = 1 if "B" in colors else 0
+                is_red   = 1 if "R" in colors else 0
+                is_green = 1 if "G" in colors else 0
 
 
 
@@ -127,6 +142,10 @@ with open("mtg_features.csv", "w", newline="") as output:
                 1 if word in text else 0
                 for word in keywords.values()
             ]
-            writer.writerow([name, power, toughness, cmc, rarity,is_white, is_blue, is_black, is_red, is_green,is_creature, is_enchantment, is_instant, is_sorcery,is_artifact, is_land, is_planeswalker,*keyword_flags])
+
+            if COLOR_DATA:
+                writer.writerow([name, power, toughness, cmc, rarity,is_white, is_blue, is_black, is_red, is_green,is_creature, is_enchantment, is_instant, is_sorcery,is_artifact, is_land, is_planeswalker,*keyword_flags])
+            else:
+                writer.writerow([name, power, toughness, cmc, rarity,is_creature, is_enchantment, is_instant, is_sorcery,is_artifact, is_land, is_planeswalker,*keyword_flags])
 
 print("Wrote card data to mtg_features.csv")

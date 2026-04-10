@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "mtghpc"
+version = "0.1.0"
+description = ""
+authors = ["Daltrob26 <n1dtr@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.14"
+requests = "^2.33.1"
+pandas = "^3.0.1"
+scikit-learn = "^1.8.0"
+plotly = "^6.6.0"
+dash = "^4.1.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

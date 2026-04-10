@@ -10,4 +10,5 @@
 #### on the machine you are running on (you can use the 'myallocation' command)
 cd ~/mtgHPC
 #Run the program with our input
+nvcc kmean.cu -o out
 ./out

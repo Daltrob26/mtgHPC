@@ -2,3 +2,8 @@
 *.csv
 slurmjob*
 out
+/assets/*
+/assets
+poetry.lock
+.DS_Store
+BuildandRunMac.sh
