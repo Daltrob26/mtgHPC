@@ -9,3 +9,4 @@ poetry.lock
 BuildandRunMac.sh
 Serial
 OpenMP
+Cuda

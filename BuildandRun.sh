@@ -8,7 +8,6 @@
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-cd ~/mtgHPC
 module load gcc cuda
 
 set -e

@@ -7,6 +7,8 @@
 #include <chrono>
 #include <cstring>
 
+int NUM_RUNS = 10;
+
 struct Card {
     std::string name;
     std::vector<double> features;
@@ -319,14 +321,32 @@ int main() {
 
     int k = 5;
     int iter = 100;
-    auto start = std::chrono::high_resolution_clock::now();
-    auto labels = kMeansCUDA(data, k, iter);
-    auto end = std::chrono::high_resolution_clock::now();
 
-    std::chrono::duration<double> elapsed = end - start;
-    std::cout << "K-means CUDA completed in "
-              << elapsed.count()
-              << " seconds.\n";
+    double totalTime = 0.0;
+
+    std::vector<int> labels;
+
+    for (int run = 0; run < NUM_RUNS; ++run) {
+        auto start = std::chrono::high_resolution_clock::now();
+
+        labels = kMeansCUDA(data, k, iter);
+
+        // sync before stopping the clock
+        cudaDeviceSynchronize();
+
+        auto end = std::chrono::high_resolution_clock::now();
+
+        std::chrono::duration<double> elapsed = end - start;
+        totalTime += elapsed.count();
+
+        std::cout << "Run " << run + 1 << " completed in "
+                  << elapsed.count() << " seconds.\n";
+    }
+
+    double averageTime = totalTime / NUM_RUNS;
+
+    std::cout << "Average time over " << NUM_RUNS
+              << " runs: " << averageTime << " seconds.\n";
 
     writeCSVWithCardData("clusteredCardsCuda.csv", data, labels);
 
