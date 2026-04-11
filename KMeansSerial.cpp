@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-int NUM_RUNS = 1;
+int NUM_RUNS = 10;
 
 // struct to hold card data
 //  namely to seperate the name from the numerical data

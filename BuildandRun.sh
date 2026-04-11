@@ -65,14 +65,23 @@ else
 fi
 
 compare_outputs () {
-
     echo "Comparing outputs for $1..."
-    if cmp -s SerialCards.csv clusteredCardsOpenMP.csv; then
+    
+    if [ "$1" == "OpenMP" ]; then
+        TARGET="clusteredCardsOpenMP.csv"
+    elif [ "$1" == "Cuda" ]; then
+        TARGET="clusteredCardsCuda.csv"
+    else
+        echo "Unknown comparison target"
+        return
+    fi
+
+    if cmp -s SerialCards.csv "$TARGET"; then
         echo "Files are identical"
     else
         echo "Files are DIFFERENT"
         echo "Showing differences (first 20 lines):"
-        diff SerialCards.csv clusteredCardsOpenMP.csv | head -n 20
+        diff SerialCards.csv "$TARGET" | head -n 20
     fi
 }
 

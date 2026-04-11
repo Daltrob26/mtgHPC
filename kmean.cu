@@ -328,7 +328,7 @@ int main() {
               << elapsed.count()
               << " seconds.\n";
 
-    writeCSVWithCardData("clusteredCards.csv", data, labels);
+    writeCSVWithCardData("clusteredCardsCuda.csv", data, labels);
 
     return 0;
 }

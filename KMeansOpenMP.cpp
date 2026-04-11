@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-int NUM_RUNS = 1;
+int NUM_RUNS = 10;
 
 // struct to hold card data
 struct Card {

@@ -7,3 +7,5 @@ out
 poetry.lock
 .DS_Store
 BuildandRunMac.sh
+Serial
+OpenMP
