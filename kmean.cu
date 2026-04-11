@@ -64,23 +64,24 @@ std::vector<Card> readCSV(const std::string &filename) {
 }
 
 // write out the data, final col is the cluster the card belongs to
-void writeCSVWithCardData(const std::string &filename, const std::vector<Card> &data, const std::vector<int> &labels) {
-    std::ofstream out(filename);
-    if (!out.is_open()) {
-        std::cerr << "Failed to open " << filename << " for writing.\n";
-        return;
-    }
+void writeCSVWithCardData(const std::string &filename,
+                          const std::vector<Card> &data,
+                          const std::vector<int> &labels,
+                          const std::vector<std::string> &header) {
+  std::ofstream out(filename);
 
-    // Write rows
-    for (size_t i = 0; i < data.size(); ++i) {
-        out << '"' << data[i].name << '"';
-        for (double f : data[i].features) {
-            out << "," << f;
-        }
-        out << "," << labels[i] << "\n";
-    }
+  for (size_t i = 0; i < header.size(); ++i) {
+    out << '"' << header[i] << '"' << ",";
+  }
+  out << "\"cluster\"\n";
 
-    out.close();
+  for (size_t i = 0; i < data.size(); ++i) {
+    out << '"' << data[i].name << '"';
+    for (double f : data[i].features) {
+      out << "," << f;
+    }
+    out << "," << labels[i] << "\n";
+  }
 }
 
 __global__
@@ -318,6 +319,13 @@ std::vector<int> kMeansCUDA(
 
 int main() {
     auto data = readCSV("mtg_features.csv");
+    std::string headerLine;
+    std::getline(infile, headerLine);
+
+  if (!headerLine.empty() &&
+      (headerLine.back() == '\n' || headerLine.back() == '\r')) {
+    headerLine.pop_back();
+  }
 
     int k = 5;
     int iter = 100;
@@ -348,7 +356,7 @@ int main() {
     std::cout << "Average time over " << NUM_RUNS
               << " runs: " << averageTime << " seconds.\n";
 
-    writeCSVWithCardData("clusteredCardsCuda.csv", data, labels);
+    writeCSVWithCardData("clusteredCardsCuda.csv", data, labels, header);
 
     return 0;
 }
