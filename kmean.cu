@@ -345,6 +345,7 @@ int main() {
     double totalTime = 0.0;
 
     std::vector<int> labels;
+    auto data = readCSV("mtg_features.csv");
 
     for (int run = 0; run < NUM_RUNS; ++run) {
         auto start = std::chrono::high_resolution_clock::now();
