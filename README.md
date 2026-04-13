@@ -62,3 +62,7 @@ Assuming we get 1 core per task on CHPC this is our efficiency and speedup
 
 ![](/images/SpeedupOpenMP.png)
 ![](/images/EfficiencyOpenMP.png)
+
+
+# Credits
+Dallin: serial, openMP, visualization, data prep
