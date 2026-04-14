@@ -38,20 +38,20 @@ The visualization does pull data from scryfall to show the card that is currentl
 ### Serial Performance
 
 | Scale | Time (seconds) |
-|-------|---------------|
-| 1x    | 14.9481       |
-| 2x    | 29.9797       |
-| 5x    | 74.7923       |
-| 10x   | 148.74        |
+|-------|----------------|
+| 1x    | 14.9481        |
+| 2x    | 29.9797        |
+| 5x    | 74.7923        |
+| 10x   | 148.74         |
 
 ### OpenMP Performance
 
 | Scale | Time (seconds) |
-|-------|---------------|
-| 1x    | 1.71803       |
-| 2x    | 3.43699       |
-| 5x    | 8.5891        |
-| 10x   | 17.6898       |
+|-------|----------------|
+| 1x    | 1.71803        |
+| 2x    | 3.43699        |
+| 5x    | 8.5891         |
+| 10x   | 17.6898        |
 
 ![](/images/SerialVsOpenMP.png)
 
@@ -62,6 +62,17 @@ Assuming we get 1 core per task on CHPC this is our efficiency and speedup
 
 ![](/images/SpeedupOpenMP.png)
 ![](/images/EfficiencyOpenMP.png)
+
+
+### Cuda Block Sizes
+
+| Scale | Time (seconds) |
+|-------|----------------|
+| 64    | 0.862295       |
+| 128   | 0.862303       |
+| 256   | 0.862667       |
+| 512   | 0.862412       |
+| 1024  | 0.847761       |
 
 
 # Credits

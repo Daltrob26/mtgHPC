@@ -169,25 +169,27 @@ void reduce(
     int count = 0;
 
     for (int i = 0; i < n; i++) {
-
         if (contribCounts[i] == c) {
             sum += contribSums[i * dim + d];
 
-            if (d == 0)
+            if (d == 0) {
                 count++;
+            }
         }
     }
 
     sums[c * dim + d] = sum;
 
-    if (d == 0)
+    if (d == 0) {
         counts[c] = count;
+    }
 }
 
 std::vector<int> kMeansCUDA(
     const std::vector<Card>& data,                        
     int k, 
-    int max_iters
+    int max_iters,
+    const int blocks=126
 ) {
 
     int n = data.size();
@@ -241,7 +243,7 @@ std::vector<int> kMeansCUDA(
                n * dim * sizeof(double),
                cudaMemcpyHostToDevice);
 
-    dim3 block(256);
+    dim3 block(blocks);
     dim3 grid((n + block.x - 1) / block.x);
 
     // main loop
@@ -327,6 +329,7 @@ std::vector<int> kMeansCUDA(
     return labels;
 }
 
+
 int main() {
     std::ifstream infile("mtg_features.csv");
     std::string headerLine;
@@ -342,32 +345,35 @@ int main() {
     int k = 5;
     int iter = 100;
 
-    double totalTime = 0.0;
-
+    
     std::vector<int> labels;
     auto data = readCSV("mtg_features.csv");
-
-    for (int run = 0; run < NUM_RUNS; ++run) {
-        auto start = std::chrono::high_resolution_clock::now();
-
-        labels = kMeansCUDA(data, k, iter);
-
-        // sync before stopping the clock
-        cudaDeviceSynchronize();
-
-        auto end = std::chrono::high_resolution_clock::now();
-
-        std::chrono::duration<double> elapsed = end - start;
-        totalTime += elapsed.count();
-
-        std::cout << "Run " << run + 1 << " completed in "
-                  << elapsed.count() << " seconds.\n";
+    
+    for (int blocks = 64; blocks <= 1024; blocks *= 2) {
+        double totalTime = 0.0;
+        for (int run = 0; run < NUM_RUNS; ++run) {
+            auto start = std::chrono::high_resolution_clock::now();
+    
+            labels = kMeansCUDA(data, k, iter, blocks);
+    
+            // sync before stopping the clock
+            cudaDeviceSynchronize();
+    
+            auto end = std::chrono::high_resolution_clock::now();
+    
+            std::chrono::duration<double> elapsed = end - start;
+            totalTime += elapsed.count();
+    
+            // std::cout << "Run " << run + 1 << " completed in "
+            //           << elapsed.count() << " seconds.\n";
+        }
+    
+        double averageTime = totalTime / NUM_RUNS;
+    
+        std::cout << "Average time over " << NUM_RUNS
+                  << " runs with block size "<< blocks 
+                  << ": " << averageTime << " seconds.\n";
     }
-
-    double averageTime = totalTime / NUM_RUNS;
-
-    std::cout << "Average time over " << NUM_RUNS
-              << " runs: " << averageTime << " seconds.\n";
 
     writeCSVWithCardData("clusteredCardsCuda.csv", data, labels, header);
 

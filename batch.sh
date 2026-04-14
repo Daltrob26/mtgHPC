@@ -9,7 +9,8 @@
 #### IMPORTANT check which account and partition you can use
 #### on the machine you are running on (you can use the 'myallocation' command)
 cd ~/mtgHPC
+module load gcc cuda
 #Run the program with our input
-# nvcc kmean.cu -o cuda
-nvcc kmeanChatGPT.cu -o cuda
+nvcc kmean.cu -o cuda
+# nvcc kmeanChatGPT.cu -o cuda
 ./cuda
