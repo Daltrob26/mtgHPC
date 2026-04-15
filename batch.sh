@@ -11,6 +11,6 @@
 cd ~/mtgHPC
 module load gcc cuda
 #Run the program with our input
-nvcc kmean.cu -o cuda
+nvcc kmean.cu utils.cpp -o cuda
 # nvcc kmeanChatGPT.cu -o cuda
 ./cuda

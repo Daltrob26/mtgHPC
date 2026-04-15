@@ -58,7 +58,7 @@ fi
 echo "Checking Cuda executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
     echo "Compiling Cuda version..."
-    nvcc kmean.cu -o Cuda
+    nvcc kmean.cu  utils.cpp -o Cuda
 else
     echo "Cuda already compiled"
 fi
