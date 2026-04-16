@@ -20,5 +20,6 @@ module load gcc cuda intel-mpi
 
 mpicc -c KMeansMPICuda.cpp -o main.o
 nvcc -c KMeansMPICuda.cu -o cuda_main.o
-mpicc main.o cuda_main.o -lcudart -lstdc++ -llzma -o mpi-cuda 
+mpicc -c utils.cpp -o utils.o
+mpicc main.o cuda_main.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
 srun --mpi=pmi2 ./mpi-cuda
