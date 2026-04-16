@@ -10,3 +10,5 @@ BuildandRunMac.sh
 Serial
 OpenMP
 Cuda
+*.o
+mpi-cuda
