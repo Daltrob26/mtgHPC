@@ -40,7 +40,7 @@ fi
 echo "Checking Serial executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "Serial" ]; then
     echo "Compiling serial version..."
-    g++ KMeansSerial.cpp -o Serial
+    g++ KMeansSerial.cpp  utils.cpp -o Serial
 else
     echo "Serial already compiled"
 fi
@@ -49,7 +49,7 @@ fi
 echo "Checking OpenMP executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "OpenMP" ]; then
     echo "Compiling OpenMP version..."
-    g++ -fopenmp KMeansOpenMP.cpp -o OpenMP
+    g++ -fopenmp KMeansOpenMP.cpp utils.cpp -o OpenMP
 else
     echo "OpenMP already compiled"
 fi
