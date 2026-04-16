@@ -6,6 +6,7 @@
 
 using namespace std;
 
+int NUM_RUNS = 10;
 
 std::vector<std::string> parseCSVRow(const std::string &line) {
     std::vector<std::string> result;

@@ -6,81 +6,11 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include "utils.h"
 
-int NUM_RUNS = 10;
 
-// struct to hold card data
-struct Card {
-  std::string name;
-  std::vector<double> features;
-};
 
 // parses one row of the datasheet
-std::vector<std::string> parseCSVRow(const std::string &line) {
-  std::vector<std::string> result;
-  std::string cur;
-  bool inQuotes = false;
-
-  for (char c : line) {
-    if (c == '"') {
-      inQuotes = !inQuotes;
-    } else if (c == ',' && !inQuotes) {
-      result.push_back(cur);
-      cur.clear();
-    } else {
-      cur += c;
-    }
-  }
-  result.push_back(cur);
-  return result;
-}
-
-std::vector<Card> readCSV(const std::string &filename) {
-  std::ifstream file(filename);
-  std::string line;
-  std::vector<Card> data;
-
-  bool firstLine = true;
-
-  while (std::getline(file, line)) {
-    if (firstLine) {
-      firstLine = false;
-      continue;
-    }
-
-    auto cols = parseCSVRow(line);
-    Card card;
-    card.name = cols[0];
-
-    for (size_t i = 1; i < cols.size(); ++i) {
-      card.features.push_back(std::stod(cols[i]));
-    }
-
-    data.push_back(card);
-  }
-
-  return data;
-}
-
-void writeCSVWithCardData(const std::string &filename,
-                          const std::vector<Card> &data,
-                          const std::vector<int> &labels,
-                          const std::vector<std::string> &header) {
-  std::ofstream out(filename);
-
-  for (size_t i = 0; i < header.size(); ++i) {
-    out << '"' << header[i] << '"' << ",";
-  }
-  out << "\"cluster\"\n";
-
-  for (size_t i = 0; i < data.size(); ++i) {
-    out << '"' << data[i].name << '"';
-    for (double f : data[i].features) {
-      out << "," << f;
-    }
-    out << "," << labels[i] << "\n";
-  }
-}
 
 double computeDistance(const std::vector<double> &a,
                        const std::vector<double> &b) {

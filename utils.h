@@ -2,6 +2,7 @@
 #include <vector>
 
 using namespace std;
+extern int NUM_RUNS;
 
 struct Card {
     string name;
