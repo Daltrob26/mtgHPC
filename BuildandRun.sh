@@ -58,9 +58,22 @@ fi
 echo "Checking Cuda executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
     echo "Compiling Cuda version..."
-    nvcc kmean.cu  utils.cpp -o Cuda
+    nvcc kmean.cu kmeanKernel.cu utils.cpp -o Cuda
 else
     echo "Cuda already compiled"
+fi
+
+# Compile MPI Cuda version
+echo "Checking Cuda executable..."
+if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
+    echo "Compiling Cuda version..."
+    mpicc -c KMeansMPICuda.cpp -o main.o
+    nvcc -c KMeansMPICuda.cu -o cuda_driver.o
+    nvcc -c kmeanKernel.cu -o cuda_kmeans.o
+    mpicc -c utils.cpp -o utils.o
+    mpicc main.o cuda_driver.o cuda_kmeans.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
+else
+    echo "MPI Cuda already compiled"
 fi
 
 compare_outputs () {
@@ -70,6 +83,8 @@ compare_outputs () {
         TARGET="clusteredCardsOpenMP.csv"
     elif [ "$1" == "Cuda" ]; then
         TARGET="clusteredCardsCuda.csv"
+    elif [ "$1" == "MPICuda" ]; then
+        TARGET="clusteredCardsMPICuda.csv"
     else
         echo "Unknown comparison target"
         return
@@ -95,5 +110,10 @@ compare_outputs "OpenMP"
 echo -e "\nRunning Cuda version..."
 ./Cuda
 compare_outputs "Cuda"
+compare_outputs "OpenMP"
+
+echo -e "\nRunning MPI Cuda version..."
+./Cuda
+compare_outputs "MPICuda"
 
 echo "Done."

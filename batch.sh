@@ -14,12 +14,14 @@
 cd ~/mtgHPC
 module load gcc cuda intel-mpi
 #Run the program with our input
-# nvcc kmean.cu utils.cpp -o cuda
 # nvcc kmeanChatGPT.cu -o cuda
+# nvcc kmean.cu kmeanKernel.cu utils.cpp -o cuda
 # ./cuda
 
+rm ./mpi-cuda
 mpicc -c KMeansMPICuda.cpp -o main.o
-nvcc -c KMeansMPICuda.cu -o cuda_main.o
+nvcc -c KMeansMPICuda.cu -o cuda_driver.o
+nvcc -c kmeanKernel.cu -o cuda_kmeans.o
 mpicc -c utils.cpp -o utils.o
-mpicc main.o cuda_main.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
+mpicc main.o cuda_driver.o cuda_kmeans.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
 srun --mpi=pmi2 ./mpi-cuda

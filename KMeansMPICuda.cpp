@@ -1,16 +1,28 @@
 #include <stdio.h>
 #include <mpi.h>     /* For MPI functions, etc */ 
-#include "utils.h"
 #include <fstream>
 #include <iostream>
 #include <cstring>
 #include <vector>
+#include <chrono>
+#include <random>
+#include "utils.h"
 
-#define MAX_FEATURES 100
+#define MAX_FEATURES 57
 #define MAX_NAME_LEN 100
 
 
-void launch_cuda();
+void launch_cuda(
+    const std::vector<Card>& data,
+    const std::vector<double>& centroids,
+    int k,
+    int dim,
+    std::vector<double>& local_sums,
+    std::vector<int>& local_counts,
+    std::vector<int>& labels
+);
+
+void cleanup_cuda();
 
 
 struct CardMPI {
@@ -55,6 +67,33 @@ void Build_mpi_type(MPI_Datatype* mpi_type_card) {
     MPI_Type_commit(mpi_type_card);
 }
 
+std::vector<Card> ConvertToOriginalCards(
+    CardMPI* local_cards,
+    int local_n,
+    int dimensions
+) {
+    std::vector<Card> result;
+    result.reserve(local_n);
+
+    for (int i = 0; i < local_n; i++) {
+        Card c;
+
+        // reconstruct name
+        c.name = std::string(local_cards[i].name);
+
+        // reconstruct features (only up to real dimensions)
+        c.features.assign(
+            local_cards[i].features,
+            local_cards[i].features + dimensions
+        );
+
+        result.push_back(std::move(c));
+    }
+
+    return result;
+}
+
+
 int main(void) {
 
     // MPI variables
@@ -87,6 +126,7 @@ int main(void) {
     counts_array = new int[comm_sz];
     dspls_array = new int[comm_sz];
 
+    std::vector<std::string> header;
     if (my_rank == 0) {
         // Load File
         std::ifstream infile("mtg_features.csv");
@@ -98,7 +138,7 @@ int main(void) {
             headerLine.pop_back();
         }
 
-        std::vector<std::string> header = parseCSVRow(headerLine);
+        header = parseCSVRow(headerLine);
 
         int k = 5;
         int iter = 100;
@@ -181,43 +221,111 @@ int main(void) {
         MPI_COMM_WORLD
     );
 
-    if (my_rank == 0) {
-        for (int i = 0; i < local_n; i++) {
-            printf("Rank %d got card %d | name=%s | f0=%f\n",
-                my_rank,
-                i,
-                local_card_array[i].name,
-                local_card_array[i].features[3]);
-        }
-    }
+
+    std::vector<Card> local_data = ConvertToOriginalCards(local_card_array, local_n, dimensions);
+
+    int k = 5;
+    int iter = 100;
+
+    std::vector<double> local_sums(k * dimensions);
+    std::vector<double> global_sums(k * dimensions);
+
+    std::vector<int> local_counts(k);
+    std::vector<int> global_counts(k);
+
+    std::vector<int> labels;
 
     // Perform Computation 
-    // double totalTime = 0.0; 
-    // for (int run = 0; run < NUM_RUNS; ++run) { 
-    //     auto start = std::chrono::high_resolution_clock::now(); 
+    double totalTime = 0.0; 
+    for (int run = 0; run < NUM_RUNS; ++run) { 
+        auto start = std::chrono::high_resolution_clock::now(); 
 
-    //     labels = launch_cuda(data, k, iter, blocks); 
+        std::vector<double> centroids(k * dimensions);
 
-    //     // sync before stopping the clock 
-    //     cudaDeviceSynchronize(); 
+        if (my_rank == 0) {
+            // seed the random starting cards to be the centroids
+            //  08051993 because thats mtg's birthday
+            std::mt19937 rng(851993);
+            std::uniform_int_distribution<int> dist(0, data_size - 1);
+            for (int c = 0; c < k; c++) {
+                int idx = dist(rng);
+                // print the names of cards used for centroids
+                //  std::cout << data[idx].name << "\n";
+                std::memcpy(&centroids[c * dimensions],
+                            data[idx].features.data(),
+                            dimensions * sizeof(double));
+            }
+        } else {
+            centroids.resize(k * dimensions);
+        }
 
-    //     auto end = std::chrono::high_resolution_clock::now(); 
+        // main loop
+        for (int it = 0; it < 100; it++) {
+            MPI_Bcast(
+                centroids.data(),
+                k * dimensions,
+                MPI_DOUBLE,
+                0,
+                MPI_COMM_WORLD
+            );
 
-    //     std::chrono::duration<double> elapsed = end - start; 
-    //     totalTime += elapsed.count(); 
+            launch_cuda(
+                local_data,
+                centroids,
+                k,
+                dimensions,
+                local_sums,
+                local_counts,
+                labels
+            );
 
-    //     std::cout << "Run " << run + 1 << " completed in " 
-    //             << elapsed.count() << " seconds.\n"; 
-    // } 
+            MPI_Allreduce(
+                local_sums.data(),
+                global_sums.data(),
+                k * dimensions,
+                MPI_DOUBLE,
+                MPI_SUM,
+                MPI_COMM_WORLD
+            );
 
-    // double averageTime = totalTime / NUM_RUNS; 
+            MPI_Allreduce(
+                local_counts.data(),
+                global_counts.data(),
+                k,
+                MPI_INT,
+                MPI_SUM,
+                MPI_COMM_WORLD
+            );
 
-    // std::cout << "Average time over " << NUM_RUNS 
-    //         << " runs with block size "<< blocks 
-    //         << ": " << averageTime << " seconds.\n"; 
+            for (int c = 0; c < k; c++) {
+                if (global_counts[c] == 0) continue;
 
-    // // Write Result 
-    // writeCSVWithCardData("clusteredCardsCuda.csv", data, labels, header);
+                for (int d = 0; d < dimensions; d++) {
+                    centroids[c * dimensions + d] = global_sums[c * dimensions + d] / global_counts[c];
+                }
+            }
+        }
+
+        cleanup_cuda();
+        
+        auto end = std::chrono::high_resolution_clock::now(); 
+
+        std::chrono::duration<double> elapsed = end - start; 
+        totalTime += elapsed.count(); 
+        
+        // std::cout << "Run " << run + 1 << " completed in " 
+        //         << elapsed.count() << " seconds.\n"; 
+    } 
+
+    double averageTime = totalTime / NUM_RUNS; 
+    
+    if (my_rank == 0) {
+        std::cout << "Average time over " << NUM_RUNS 
+                << ": " << averageTime << " seconds.\n"; 
+        
+        // Write Result 
+        writeCSVWithCardData("clusteredCardsMPICuda.csv", data, labels, header);
+    }
 
     /* Shut down MPI */
     MPI_Finalize(); 
