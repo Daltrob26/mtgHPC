@@ -233,14 +233,20 @@ int main(void) {
     std::vector<int> local_counts(k);
     std::vector<int> global_counts(k);
 
+    std::vector<int> local_labels;
+
     std::vector<int> labels;
+    if (my_rank == 0) {
+        labels.resize(data_size);
+    }
+
 
     // Perform Computation 
     double totalTime = 0.0; 
     for (int run = 0; run < NUM_RUNS; ++run) { 
         auto start = std::chrono::high_resolution_clock::now(); 
 
-        std::vector<double> centroids(k * dimensions);
+        std::vector<double> centroids(k * dimensions, 0.0);
 
         if (my_rank == 0) {
             // seed the random starting cards to be the centroids
@@ -261,6 +267,9 @@ int main(void) {
 
         // main loop
         for (int it = 0; it < 100; it++) {
+            std::fill(local_sums.begin(), local_sums.end(), 0.0);
+            std::fill(local_counts.begin(), local_counts.end(), 0);
+            
             MPI_Bcast(
                 centroids.data(),
                 k * dimensions,
@@ -276,7 +285,7 @@ int main(void) {
                 dimensions,
                 local_sums,
                 local_counts,
-                labels
+                local_labels
             );
 
             MPI_Allreduce(
@@ -304,6 +313,18 @@ int main(void) {
                     centroids[c * dimensions + d] = global_sums[c * dimensions + d] / global_counts[c];
                 }
             }
+
+            MPI_Gatherv(
+                local_labels.data(),   
+                local_n,        
+                MPI_INT, 
+                labels.data(),  
+                counts_array, 
+                dspls_array,   
+                MPI_INT, 
+                0, 
+                MPI_COMM_WORLD
+            );
         }
 
         cleanup_cuda();

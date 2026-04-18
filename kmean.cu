@@ -78,6 +78,10 @@ std::vector<int> kMeansCUDA(
             k * dim * sizeof(double),
             cudaMemcpyHostToDevice
         );
+
+        labels.assign(n, 0);
+        cudaMemcpy(d_labels, labels.data(), n * sizeof(int), cudaMemcpyHostToDevice);
+
         cudaDeviceSynchronize(); 
 
         // assign cards to centroids
@@ -100,6 +104,8 @@ std::vector<int> kMeansCUDA(
             n, dim);
         cudaDeviceSynchronize(); 
 
+        cudaMemset(d_contribSums, 0, n * dim * sizeof(double));
+        cudaMemset(d_contribCounts, 0, n * sizeof(int));
         cudaMemset(d_sums, 0, k * dim * sizeof(double));
         cudaMemset(d_counts, 0, k * sizeof(int));
 

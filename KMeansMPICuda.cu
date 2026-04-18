@@ -1,4 +1,5 @@
 #include <cuda_runtime.h>
+#include <iostream>
 #include <vector>
 #include <cstring>
 #include "kmeanKernel.cuh"
@@ -84,7 +85,7 @@ void launch_cuda(
         k,
         dim
     );
-    cudaDeviceSynchronize(); 
+    cudaDeviceSynchronize();
 
     // recompute centroids
     buildPointContributions<<<grid, block>>>(
@@ -126,6 +127,12 @@ void launch_cuda(
     cudaMemcpy(labels.data(), d_labels,
                n * sizeof(int),
                cudaMemcpyDeviceToHost);
+
+    cudaMemcpy(labels.data(), d_labels,
+               n * sizeof(int),
+               cudaMemcpyDeviceToHost);
+
+    cudaDeviceSynchronize(); 
 }
 
 void cleanup_cuda() {
