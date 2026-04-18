@@ -64,16 +64,33 @@ Assuming we get 1 core per task on CHPC this is our efficiency and speedup
 ![](/images/EfficiencyOpenMP.png)
 
 
-### Cuda Block Sizes
+### Cuda
 
-| Scale | Time (seconds) |
+The average runtime of the cuda impelemtation on notchpeak across 10 runs for each block size :
+
+| Block Size | Time (seconds) |
+|------------|----------------|
+| 64         | 0.568238       |
+| 128        | 0.545512       |
+| 256        | 0.543146       |
+| 512        | 0.553101       |
+| 1024       | 0.570377       |
+
+We didn't observe a significant difference between block sizes until going up to 1024, which would be just one block per warp. The overall approach was similar to the other strategies, but the reduction at the end was much tricker due to not having any built in reduction tools. We did achieve a significant speedup compared the cpu impelemtations. The main notable part here is the cuda calculations were done in separate steps of assigning cards to centroids, computing new centroids, and doing a reduction to get the final result due to data dependencies.
+
+### MPI Cuda
+
+The average runtime of the cuda impelemtation on notchpeak across 10 runs for node counts 2-4:
+
+| Nodes | Time (seconds) |
 |-------|----------------|
-| 64    | 0.862295       |
-| 128   | 0.862303       |
-| 256   | 0.862667       |
-| 512   | 0.862412       |
-| 1024  | 0.847761       |
+| 2     | 0.394982       |
+| 3     | 0.294263       |
+| 4     | 0.235726       |
+
+This impentation easily runs the fastest, but was fairly difficult and had more moving pieces. The biggest pain points were how to transfer the card data across nodes and keeping the two step reduction straight (one for cuda and one accross nodes). The cuda aspect was very similar to the first implementation and uses much of the same code. The MPI part first scatters the cards between the nodes, then for each iteration broadcasting the current centroids, performs the cuda computation on each node, then uses MPI_Allreduce and MPI_Gatherv to collect the results. The file loading and results output is only done on node 0.
 
 
 # Credits
 Dallin: serial, openMP, visualization, data prep
+Logan: parallel CUDA GPU and distributed memory GPU

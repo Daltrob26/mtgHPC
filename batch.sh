@@ -1,14 +1,14 @@
 #!/bin/bash
-#SBATCH --time=00:02:00
+#SBATCH --time=00:03:00
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
-#SBATCH --nodes=2
-#SBATCH --ntasks=2
+#SBATCH --nodes=4
+#SBATCH --ntasks=4
 #SBATCH --ntasks-per-node=1
 #SBATCH -o slurmjob-%j.out-%N
 #SBATCH -e slurmjob-%j.err-%N
-#SBATCH --account=kingspeak-gpu
-#SBATCH --partition=kingspeak-gpu
+#SBATCH --account=notchpeak-gpu
+#SBATCH --partition=notchpeak-gpu
 #### IMPORTANT check which account and partition you can use
 #### on the machine you are running on (you can use the 'myallocation' command)
 cd ~/mtgHPC
@@ -18,7 +18,6 @@ module load gcc cuda intel-mpi
 # nvcc kmean.cu kmeanKernel.cu utils.cpp -o cuda
 # ./cuda
 
-rm ./mpi-cuda
 mpicc -c KMeansMPICuda.cpp -o main.o
 nvcc -c KMeansMPICuda.cu -o cuda_driver.o
 nvcc -c kmeanKernel.cu -o cuda_kmeans.o
