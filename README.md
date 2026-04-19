@@ -94,3 +94,4 @@ This impentation easily runs the fastest, but was fairly difficult and had more 
 # Credits
 Dallin: serial, openMP, visualization, data prep
 Logan: parallel CUDA GPU and distributed memory GPU
+Matt: parallel MPI distributed memory

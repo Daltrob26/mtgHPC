@@ -227,6 +227,8 @@ int main() {
     MPI_Comm_size(comm, &comm_sz);
     MPI_Comm_rank(comm, &my_rank);
 
+    printf("Process %d of %d is alive.\n", my_rank, comm_sz);
+
     int k = 5;
     int iter = 100;
     int n = 0;
