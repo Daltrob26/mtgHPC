@@ -32,7 +32,7 @@ std::vector<int> kMeans(const std::vector<Card> &data, int k,
   // initialize centroids
   std::vector<std::vector<double>> centroids;
   std::mt19937 rng(851993);
-  std::uniform_int_distribution<int> dist(0, n - 1);
+  std::uniform_int_distribution<int> dist(0, data.size() - 1);
 
   for (int i = 0; i < k; ++i) {
     centroids.push_back(data[dist(rng)].features);
