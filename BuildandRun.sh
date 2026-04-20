@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --time=01:00:00
-#SBATCH --nodes=4
+#SBATCH --nodes=2
 #SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
 #SBATCH -o slurmjob-%j.out-%N 
@@ -114,20 +114,20 @@ compare_outputs () {
 echo -e "\nRunning serial version..."
 ./Serial
 
-echo -e "\nRunning OpenMP version..."
-./OpenMP
-compare_outputs "OpenMP"
+# echo -e "\nRunning OpenMP version..."
+# ./OpenMP
+# compare_outputs "OpenMP"
 
-echo -e "\nRunning Cuda version..."
-./Cuda
-compare_outputs "Cuda"
+# echo -e "\nRunning Cuda version..."
+# ./Cuda
+# compare_outputs "Cuda"
 
 echo -e "\nRunning MPI version..."
-srun ./MPI
+srun --mpi=pmi2 ./MPI
 compare_outputs "MPI"
 
-echo -e "\nRunning MPI Cuda version..."
-srun --mpi=pmi2 ./mpi-cuda
-compare_outputs "MPICuda"
+# echo -e "\nRunning MPI Cuda version..."
+# srun --mpi=pmi2 ./mpi-cuda
+# compare_outputs "MPICuda"
 
 echo "Done."
