@@ -247,6 +247,7 @@ int main() {
         local_n = n / comm_sz;
     }
 
+	// allocate space for each process's local cards
     CardMPI* local_card_array = new CardMPI[local_n];
 
     // make sure all processes have the counts and displacements before scattering
@@ -257,16 +258,17 @@ int main() {
     
 
     for (int run = 0; run < NUM_RUNS; ++run) {
-        auto start = std::chrono::high_resolution_clock::now();
+        double start = MPI_Wtime();	
         int* labels = kMeans(local_card_array, local_n, dimensions, k, iter, my_rank, n, comm);
-        auto end = std::chrono::high_resolution_clock::now();
+        double end = MPI_Wtime();
 
-        std::chrono::duration<double> elapsed = end - start;
-        totalTime += elapsed.count();
-        std::cout << "Run " << run + 1 << " completed in " << elapsed.count() << " seconds.\n";
+        double elapsed = end - start;
+        totalTime += elapsed;
+        std::cout << "Run " << run + 1 << " completed in " << elapsed << " seconds.\n";
     }
 
-    
+	// ensure all processes have finished before we calculate the average time
+    MPI_Barrier(comm);
     
     if (my_rank == 0) {
         double averageTime = totalTime / NUM_RUNS;
@@ -281,6 +283,7 @@ int main() {
     
     
     if (my_rank == 0){
+		// gather the labels from all processes
 		int* global_labels = new int[n];
 		int* recv_buffer = new int[n];
 		memcpy(global_labels, labels, n * sizeof(int));
@@ -297,6 +300,7 @@ int main() {
         writeCSVWithCardDataMPI("clusteredCardsMPI.csv", data, global_labels, header);
     }
 
+	// cleanup
     free(mpi_card_array);
     free(counts_array);
     free(dspls_array);

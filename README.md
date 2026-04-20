@@ -78,6 +78,19 @@ The average runtime of the cuda impelemtation on notchpeak across 10 runs for ea
 
 We didn't observe a significant difference between block sizes until going up to 1024, which would be just one block per warp. The overall approach was similar to the other strategies, but the reduction at the end was much tricker due to not having any built in reduction tools. We did achieve a significant speedup compared the cpu impelemtations. The main notable part here is the cuda calculations were done in separate steps of assigning cards to centroids, computing new centroids, and doing a reduction to get the final result due to data dependencies.
 
+### MPI
+
+The average runtime of the MPI implementation on kingspeak across 10 runs for task count 2-8:
+
+| Tasks | Time (seconds) |
+|-------|----------------|
+| 2     | 0.754343       |
+| 4     | 0.389653       |
+| 6     | 0.380434       |
+| 8     | 0.296742       |
+
+This implementation follows closesly to the sequence of events for the serial program with key differences at certain points. Reading from and writing to files is done only by process 0. To enable communication, the input data had to be translated to a data type that could be sent to different processes, so a CardMPI struct was made. The data was then scattered to all processes and the K-Means algorithm was run. In the algorithm, process 0 randomly chose and distributed the original centroids, then each process assigned their cards to a category. To recompute the centroids, each process summed up the feature vectors of their cards as well as how many cards were in each category, then those were both summed up via MPI_REDUCE functions. After this, process 0 calculated the new centroids based off of the average feature vectors, then broadcast this back to the other processes for the next cycle. Collecting the resultant label arrays was a simple process of having each thread send their label vectors to thread 0 where they were then added together into the resultant label vector.
+
 ### MPI Cuda
 
 The average runtime of the cuda impelemtation on notchpeak across 10 runs for node counts 2-4:
