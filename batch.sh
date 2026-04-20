@@ -1,15 +1,15 @@
 #!/bin/bash
 #SBATCH --time=00:03:00
-#SBATCH --nodes=1
-#SBATCH --ntasks=4
-#SBATCH --ntasks-per-node=4
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=1
 #SBATCH -o slurmjob-%j.out-%N
 #SBATCH -e slurmjob-%j.err-%N
 #SBATCH --account=owner-guest
 #SBATCH --partition=kingspeak-guest
-#### IMPORTANT check which account and partition you can use
-#### on the machine you are running on (you can use the 'myallocation' command)
-cd ~/CS6030/mtgHPC
+
+#### This is for testing individual implementations during development
+
+cd ~/mtgHPC
 module load gcc cuda intel-mpi
 #Run the program with our input
 # nvcc kmeanChatGPT.cu -o cuda
@@ -23,5 +23,5 @@ module load gcc cuda intel-mpi
 # mpicc main.o cuda_driver.o cuda_kmeans.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
 # srun --mpi=pmi2 ./mpi-cuda
 
-mpicxx -g -Wall -o KMeansMPI.o KMeansMPI.cpp
-mpiexec -n 4 ./KMeansMPI.o
+mpicxx KMeansMPI.cpp utils.cpp -lm -o  MPI
+srun --mpi=pmi2 ./MPI

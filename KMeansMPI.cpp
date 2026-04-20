@@ -58,7 +58,7 @@ double computeDistance(double* a,
   return std::sqrt(sum);
 }
 
-int* kMeans(CardMPI* local_card_array, double local_n, int dimensions, int k,
+int* kMeans(CardMPI* local_card_array, CardMPI* all_card_array, double local_n, int dimensions, int k,
                         int max_iterations, int my_rank, double total_n, MPI_Comm comm) {
 
   int* labels = new int[int(total_n)];
@@ -73,9 +73,9 @@ int* kMeans(CardMPI* local_card_array, double local_n, int dimensions, int k,
   if (my_rank == 0){
     for (int i = 0; i < k; ++i) {
       int index = dist(rng);
-      mpi_centroids[i * dimensions] = local_card_array[index].features[0];
+      mpi_centroids[i * dimensions] = all_card_array[index].features[0];
       for (int d = 1; d < dimensions; ++d) {
-        mpi_centroids[i * dimensions + d] = local_card_array[index].features[d];
+        mpi_centroids[i * dimensions + d] = all_card_array[index].features[d];
       }
     }
   }
@@ -259,7 +259,7 @@ int main() {
 
     for (int run = 0; run < NUM_RUNS; ++run) {
         double start = MPI_Wtime();	
-        int* labels = kMeans(local_card_array, local_n, dimensions, k, iter, my_rank, n, comm);
+        int* labels = kMeans(local_card_array, mpi_card_array, local_n, dimensions, k, iter, my_rank, n, comm);
         double end = MPI_Wtime();
 
         double elapsed = end - start;
@@ -275,7 +275,7 @@ int main() {
         std::cout << "Average time over " << NUM_RUNS << " runs: " << averageTime << " seconds.\n";
         
     }
-    int* labels = kMeans(local_card_array, local_n, dimensions, k, iter, my_rank, n, comm);
+    int* labels = kMeans(local_card_array, mpi_card_array, local_n, dimensions, k, iter, my_rank, n, comm);
 	
 	if (my_rank != 0){
 		MPI_Send(labels, n, MPI_INT, 0, 0, comm);

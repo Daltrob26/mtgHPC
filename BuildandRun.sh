@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --time=01:00:00
-#SBATCH --nodes=1
+#SBATCH --nodes=4
+#SBATCH --ntasks-per-node=1
 #SBATCH --gres=gpu:1
-#SBATCH --ntasks=8
 #SBATCH -o slurmjob-%j.out-%N 
 #SBATCH -e slurmjob-%j.err-%N 
 #SBATCH --account=kingspeak-gpu 
@@ -123,7 +123,7 @@ echo -e "\nRunning Cuda version..."
 compare_outputs "Cuda"
 
 echo -e "\nRunning MPI version..."
-mpiexec -n 4 ./MPI
+srun ./MPI
 compare_outputs "MPI"
 
 echo -e "\nRunning MPI Cuda version..."
