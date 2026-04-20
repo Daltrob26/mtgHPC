@@ -23,5 +23,5 @@ module load gcc cuda intel-mpi
 # mpicc main.o cuda_driver.o cuda_kmeans.o utils.o -lcudart -lstdc++ -llzma -o mpi-cuda 
 # srun --mpi=pmi2 ./mpi-cuda
 
-mpixx -g -Wall -o KMeansMPI.o KMeansMPI.cpp
+mpicxx -g -Wall -o KMeansMPI.o KMeansMPI.cpp
 mpiexec -n 4 ./KMeansMPI.o
