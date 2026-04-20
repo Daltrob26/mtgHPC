@@ -121,13 +121,14 @@ compare_outputs "OpenMP"
 echo -e "\nRunning Cuda version..."
 ./Cuda
 compare_outputs "Cuda"
+compare_outputs "OpenMP"
 
 echo -e "\nRunning MPI version..."
 mpiexec -n 4 ./MPI
 compare_outputs "MPI"
 
 echo -e "\nRunning MPI Cuda version..."
-./mpi-cuda
+./Cuda
 compare_outputs "MPICuda"
 
 echo "Done."
