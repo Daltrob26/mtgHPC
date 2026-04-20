@@ -63,6 +63,26 @@ Assuming we get 1 core per task on CHPC this is our efficiency and speedup
 ![](/images/SpeedupOpenMP.png)
 ![](/images/EfficiencyOpenMP.png)
 
+## 4 vs 5
+
+### MPI Performance
+
+| Scale | Time (seconds) |
+|-------|----------------|
+| 1x    | 1.05342        |
+| 2x    | 3.43699        |
+| 5x    | 8.5891         |
+| 10x   | 17.6898        |
+
+### Cuda-MPI Performance
+
+| Scale | Time (seconds) |
+|-------|----------------|
+| 1x    | 1.71803        |
+| 2x    | 3.43699        |
+| 5x    | 8.5891         |
+| 10x   | 17.6898        |
+
 
 ### Cuda
 
@@ -80,7 +100,7 @@ We didn't observe a significant difference between block sizes until going up to
 
 ### MPI
 
-The average runtime of the MPI implementation on kingspeak across 10 runs for task count 2-8:
+The average runtime of the MPI implementation on kingspeak across 10 runs for comm_sz count 2-8:
 
 | Tasks | Time (seconds) |
 |-------|----------------|
