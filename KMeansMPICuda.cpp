@@ -140,9 +140,6 @@ int main(void) {
 
         header = parseCSVRow(headerLine);
 
-        int k = 5;
-        int iter = 100;
-
         std::vector<int> labels;
         data = readCSV("mtg_features.csv");
 
@@ -266,7 +263,7 @@ int main(void) {
         }
 
         // main loop
-        for (int it = 0; it < 100; it++) {
+        for (int it = 0; it < iter; it++) {
             std::fill(local_sums.begin(), local_sums.end(), 0.0);
             std::fill(local_counts.begin(), local_counts.end(), 0);
             

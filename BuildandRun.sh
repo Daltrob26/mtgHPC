@@ -8,7 +8,7 @@
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-module load gcc cuda mpi
+module load gcc cuda intel-mpi
 
 set -e
 
@@ -74,8 +74,8 @@ fi
 
 # Compile MPI Cuda version
 echo "Checking Cuda executable..."
-if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
-    echo "Compiling Cuda version..."
+if [ "$FORCE_COMPILE" = true ] || [ ! -f "mpi-cuda" ]; then
+    echo "Compiling MPI Cuda version..."
     mpicc -c KMeansMPICuda.cpp -o main.o
     nvcc -c KMeansMPICuda.cu -o cuda_driver.o
     nvcc -c kmeanKernel.cu -o cuda_kmeans.o
@@ -121,14 +121,13 @@ compare_outputs "OpenMP"
 echo -e "\nRunning Cuda version..."
 ./Cuda
 compare_outputs "Cuda"
-compare_outputs "OpenMP"
 
 echo -e "\nRunning MPI version..."
 mpiexec -n 4 ./MPI
 compare_outputs "MPI"
 
 echo -e "\nRunning MPI Cuda version..."
-./Cuda
+srun --mpi=pmi2 ./mpi-cuda
 compare_outputs "MPICuda"
 
 echo "Done."

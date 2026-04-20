@@ -73,6 +73,11 @@ std::vector<int> kMeansCUDA(
 
     // main loop
     for (int it = 0; it < max_iters; it++) {
+        cudaMemset(d_contribSums, 0, n * dim * sizeof(double));
+        cudaMemset(d_contribCounts, 0, n * sizeof(int));
+        cudaMemset(d_sums, 0, k * dim * sizeof(double));
+        cudaMemset(d_counts, 0, k * sizeof(int));
+        
         cudaMemcpy(d_centroids, 
             centroids.data(),
             k * dim * sizeof(double),
@@ -103,11 +108,6 @@ std::vector<int> kMeansCUDA(
             d_contribCounts,
             n, dim);
         cudaDeviceSynchronize(); 
-
-        cudaMemset(d_contribSums, 0, n * dim * sizeof(double));
-        cudaMemset(d_contribCounts, 0, n * sizeof(int));
-        cudaMemset(d_sums, 0, k * dim * sizeof(double));
-        cudaMemset(d_counts, 0, k * sizeof(int));
 
         // reduction
         dim3 clusterGrid(k);

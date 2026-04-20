@@ -68,7 +68,7 @@ int* kMeans(CardMPI* local_card_array, double local_n, int dimensions, int k,
   //  08051993 because thats mtg's birthday
   double* mpi_centroids = new double[k * dimensions];
   std::mt19937 rng(851993);
-  std::uniform_int_distribution<int> dist(0, local_n - 1   );
+  std::uniform_int_distribution<int> dist(0, total_n - 1   );
 
   if (my_rank == 0){
     for (int i = 0; i < k; ++i) {
