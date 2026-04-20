@@ -67,7 +67,7 @@ fi
 echo "Checking MPI executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "MPI" ]; then
     echo "Compiling MPI version..."
-    mpicc KMeansMPI.cpp utils.cpp -lm -o  MPI
+    mpicxx KMeansMPI.cpp utils.cpp -lm -o  MPI
 else
     echo "MPI already compiled"
 fi
