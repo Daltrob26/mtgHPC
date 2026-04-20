@@ -114,20 +114,20 @@ compare_outputs () {
 echo -e "\nRunning serial version..."
 ./Serial
 
-# echo -e "\nRunning OpenMP version..."
-# ./OpenMP
-# compare_outputs "OpenMP"
+echo -e "\nRunning OpenMP version..."
+./OpenMP
+compare_outputs "OpenMP"
 
-# echo -e "\nRunning Cuda version..."
-# ./Cuda
-# compare_outputs "Cuda"
+echo -e "\nRunning Cuda version..."
+./Cuda
+compare_outputs "Cuda"
 
 echo -e "\nRunning MPI version..."
 srun --mpi=pmi2 ./MPI
 compare_outputs "MPI"
 
-# echo -e "\nRunning MPI Cuda version..."
-# srun --mpi=pmi2 ./mpi-cuda
-# compare_outputs "MPICuda"
+echo -e "\nRunning MPI Cuda version..."
+srun --mpi=pmi2 ./mpi-cuda
+compare_outputs "MPICuda"
 
 echo "Done."
