@@ -8,7 +8,7 @@
 #SBATCH --account=kingspeak-gpu 
 #SBATCH --partition=kingspeak-gpu
 
-module load gcc cuda
+module load gcc cuda mpi
 
 set -e
 
@@ -63,6 +63,15 @@ else
     echo "Cuda already compiled"
 fi
 
+# Compile MPI version
+echo "Checking MPI executable..."
+if [ "$FORCE_COMPILE" = true ] || [ ! -f "MPI" ]; then
+    echo "Compiling MPI version..."
+    mpicc KMeansMPI.cpp utils.cpp -lm -o  MPI
+else
+    echo "MPI already compiled"
+fi
+
 # Compile MPI Cuda version
 echo "Checking Cuda executable..."
 if [ "$FORCE_COMPILE" = true ] || [ ! -f "Cuda" ]; then
@@ -83,6 +92,8 @@ compare_outputs () {
         TARGET="clusteredCardsOpenMP.csv"
     elif [ "$1" == "Cuda" ]; then
         TARGET="clusteredCardsCuda.csv"
+    elif [ "$1" == "MPI" ]; then
+        TARGET="clusteredCardsMPI.csv"
     elif [ "$1" == "MPICuda" ]; then
         TARGET="clusteredCardsMPICuda.csv"
     else
@@ -111,6 +122,10 @@ echo -e "\nRunning Cuda version..."
 ./Cuda
 compare_outputs "Cuda"
 compare_outputs "OpenMP"
+
+echo -e "\nRunning MPI version..."
+./MPI
+compare_outputs "MPI"
 
 echo -e "\nRunning MPI Cuda version..."
 ./Cuda

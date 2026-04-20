@@ -5,14 +5,11 @@
 #include <iostream>
 #include <cstring>
 #include <vector>
-#include <cmath>
 #include <chrono>
 #include <random>
 
 #define MAX_FEATURES 100
 #define MAX_NAME_LEN 100
-
-int NUM_RUNS = 10;
 
 struct CardMPI {
     char name[MAX_NAME_LEN];
@@ -20,57 +17,8 @@ struct CardMPI {
     double features[MAX_FEATURES];
 };
 
-// parses one row of the datasheet,
-std::vector<std::string> parseCSVRow(const std::string &line) {
-  std::vector<std::string> result;
-  std::string cur;
-  bool inQuotes = false;
-
-  for (char c : line) {
-    // handle cards with , in the name
-    if (c == '"') {
-      inQuotes = !inQuotes;
-    } else if (c == ',' && !inQuotes) {
-      result.push_back(cur);
-      cur.clear();
-    } else {
-      cur += c;
-    }
-  }
-  result.push_back(cur);
-  return result;
-}
-
-std::vector<Card> readCSV(const std::string &filename) {
-  std::ifstream file(filename);
-  std::string line;
-  std::vector<Card> data;
-
-  bool firstLine = true;
-
-  while (std::getline(file, line)) {
-    // skip the header line
-    if (firstLine) {
-      firstLine = false;
-      continue;
-    }
-
-    auto cols = parseCSVRow(line);
-    Card card;
-    card.name = cols[0];
-
-    for (size_t i = 1; i < cols.size(); ++i) {
-      card.features.push_back(std::stod(cols[i]));
-    }
-
-    data.push_back(card);
-  }
-
-  return data;
-}
-
 // write out the data, final col is the cluster the card belongs to
-void writeCSVWithCardData(const std::string &filename,
+void writeCSVWithCardDataMPI(const std::string &filename,
                           const std::vector<Card> &data,
                           int* &labels,
                           const std::vector<std::string> &header) {
@@ -242,7 +190,7 @@ int main() {
       header = parseCSVRow(headerLine);
 
       // read in the data
-      auto data = readCSV("mtg_features.csv");
+      data = readCSV("mtg_features.csv");
       // convert the data to a format we can send with MPI
       n = data.size();
       dimensions = data[0].features.size();
@@ -346,9 +294,7 @@ int main() {
         //     printf("Card %s assigned to cluster %d\n", mpi_card_array[i].name, global_labels[i]);
         // }
         // printf("test");
-        printf("Process %d writing results to CSV.\n", my_rank);
-        writeCSVWithCardData("SerialCards.csv", data, global_labels, header);
-        printf("Process %d finished writing results.\n", my_rank);
+        writeCSVWithCardDataMPI("clusteredCardsMPI.csv", data, global_labels, header);
     }
 
     free(mpi_card_array);
