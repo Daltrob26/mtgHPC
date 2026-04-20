@@ -71,17 +71,17 @@ Assuming we get 1 core per task on CHPC this is our efficiency and speedup
 |-------|----------------|
 | 1x    | 1.05342        |
 | 2x    | 3.43699        |
-| 5x    | 8.5891         |
-| 10x   | 17.6898        |
+| 5x    | 2.60942         |
+| 10x   | 5.03675        |
 
 ### Cuda-MPI Performance
 
 | Scale | Time (seconds) |
 |-------|----------------|
 | 1x    | 1.71803        |
-| 2x    | 3.43699        |
-| 5x    | 8.5891         |
-| 10x   | 17.6898        |
+| 2x    | 0.516541        |
+| 5x    | 1.21347         |
+| 10x   | 4.26928        |
 
 
 ### Cuda
